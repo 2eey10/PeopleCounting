@@ -18,21 +18,18 @@ deepsort = DeepSort(cfg_deep.DEEPSORT.REID_CKPT,
                     use_cuda=True)
 device = torch.device("cuda" if torch.cuda.is_available() else "mps")   
 model = models.get('yolo_nas_s', pretrained_weights='coco').to(device)
-cap = cv2.VideoCapture('input/엘베밖/1층엘베앞3.mp4')
+cap = cv2.VideoCapture('test.mov')
 assert cap.isOpened(), "Error reading video file"
 frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))
-new_width = 640
-new_height = 480
-out = cv2.VideoWriter('output/1층엘베앞3.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 20, (new_width, new_height))
+out = cv2.VideoWriter('output/test_output.mp4', cv2.VideoWriter_fourcc(*'MJPG'), 20, (frame_width, frame_height))
 person_class_index = 0
-tracker = Sort(max_age=40, min_hits=3, iou_threshold=0.1)
+tracker = Sort(max_age=30, min_hits=3, iou_threshold=0.1)
 count = 0
 while True:
     ret, frame = cap.read()
     count += 1
     if ret:
-        frame = cv2.resize(frame, (new_width, new_height))
         cv2.putText(frame, f'Frame: {count}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
         detections = np.empty((0,6))
         result = model.predict(frame, conf=0.5, fuse_model=False)
